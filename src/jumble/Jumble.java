@@ -13,6 +13,9 @@ public class Jumble {
 		buildDictionary(wordFiles);
 	}
 	
+	/*
+	 * private function for building the dictionary trie for search.
+	 */
 	private void buildDictionary(String[] wordFiles) {
 		for (int i = 0; i < wordFiles.length; i++) {
 			try {
@@ -36,10 +39,11 @@ public class Jumble {
 					TrieNode newNode;
 					for (int j = 1; j < word.length(); j++) {
 						char curr = word.charAt(j);
-						//System.out.println(currNode.toString()+" "+currNode.getChildren().toString());
-						if (currNode.getChildren().contains(new TrieNode(curr))) {
+						int searchIndexForCurr = currNode.getChildren().indexOf(new TrieNode(curr));
+						
+						if (searchIndexForCurr >= 0) {
 							List<TrieNode> l = currNode.getChildren();
-							currNode = l.get(l.indexOf(new TrieNode(curr)));
+							currNode = l.get(searchIndexForCurr);
 						}
 						else {
 							newNode = new TrieNode(curr);
@@ -48,7 +52,6 @@ public class Jumble {
 						}
 					}
 					// put and EOW character
-					//System.out.println(currNode.toString()+" "+currNode.getChildren().toString());
 					newNode = new TrieNode(Trie.EOW);
 					currNode.addChild(newNode);
 				}
@@ -61,17 +64,27 @@ public class Jumble {
 		}
 	}
 	
-	public void getJumbleWords(String sequence) {
+	public Set<String> getJumbleWords(String sequence) {
+		Set<Character> visited = new HashSet<Character>();
+		Set<String> jumbleWords = new HashSet<String>();
+		char start;
+		
 		for (int i = 0; i < sequence.length(); i++) {
-			StringBuilder sb = new StringBuilder();
-			sb.append(sequence.charAt(i));
-			Character key = new Character(sequence.charAt(i));
-			String remains = sequence.substring(0, i) + sequence.substring(i+1, sequence.length());
-			getJumbleWordsHelper(dictionary.get(key).getRoot(), sb, remains);
+			start = sequence.charAt(i);
+			if (! visited.contains(start)) {
+				String newSeq = ""+start;
+				Character key = new Character(start);
+				String remains = sequence.substring(0, i) + sequence.substring(i+1, sequence.length());
+				if (dictionary.containsKey(key)) {
+					getJumbleWordsHelper(jumbleWords, dictionary.get(key).getRoot(), newSeq, remains);
+				}
+				visited.add(start);
+			}
 		}
+		return jumbleWords;
 	}
 	
-	private void getJumbleWordsHelper(TrieNode currNode, StringBuilder currSeq, String remains) {
+	private void getJumbleWordsHelper(Set<String> jumbleWords, TrieNode currNode, String currSeq, String remains) {
 		TrieNode key;
 		String newRemains;
 		List<TrieNode> children = currNode.getChildren();
@@ -80,7 +93,9 @@ public class Jumble {
 			// check EOW
 			key = new TrieNode(Trie.EOW);
 			if (children.contains(key)) {
-				System.out.print(currSeq+",");
+				if (!jumbleWords.contains(currSeq)) {
+					jumbleWords.add(currSeq);
+				}
 				return;
 			}
 		}
@@ -91,19 +106,21 @@ public class Jumble {
 			// check EOW
 			key = new TrieNode(Trie.EOW);
 			if (children.contains(key)) {
-				System.out.print(currSeq+",");
+				if (!jumbleWords.contains(currSeq)) {
+					jumbleWords.add(currSeq);
+				}
 			}
 			
 			// check children
 			key = new TrieNode(currChar);
 			if (children.contains(key)) {
-				currSeq.append(currChar);
+				String newSeq = currSeq + currChar;
 				currNode = children.get(children.indexOf(key));
 				newRemains = remains.substring(0, i) + remains.substring(i+1, remains.length());
-				getJumbleWordsHelper(currNode, currSeq, newRemains);
+				getJumbleWordsHelper(jumbleWords, currNode, newSeq, newRemains);
 			}
-			
 		}
+		return;
 	}
 
 	/**
@@ -113,9 +130,11 @@ public class Jumble {
 		// TODO Auto-generated method stub
 		String[] files = {"words/brit-a-z.txt"};
 		//String[] files = {"words/american-words.80", "words/english-words.80"};
-		//String[] testFiles = {"words/testWords"};
+		//String[] files = {"words/testWords"};
 		Jumble jumble = new Jumble(files);
-		jumble.getJumbleWords("dog");
+		String input = "dog";
+		Set<String> jumbleWords = jumble.getJumbleWords(input);
+		System.out.println(input+": "+jumbleWords.toString());
 	}
 
 }

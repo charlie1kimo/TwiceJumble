@@ -10,10 +10,17 @@ public class Trie {
 		this.root = root;
 	}
 	
+	/*
+	 * return root TrieNode node
+	 */
 	public TrieNode getRoot() {
 		return root;
 	}
 	
+	/*
+	 * Debugging purpose
+	 * bring the trie nodes in BFS order
+	 */
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		TrieNode curr;

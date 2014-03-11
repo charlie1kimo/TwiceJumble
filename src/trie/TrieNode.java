@@ -28,6 +28,9 @@ public class TrieNode {
 		return character.toString();
 	}
 	
+	/*
+	 * Override implementation for using Set.contains
+	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof TrieNode) {
@@ -36,6 +39,9 @@ public class TrieNode {
 		return false;
 	}
 	
+	/*
+	 * Override implementation for using Set.contains
+	 */
 	public int hashCode() {
 		return character.hashCode();
 	}
